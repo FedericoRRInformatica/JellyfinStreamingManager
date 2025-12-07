@@ -1,4 +1,6 @@
 
+from __future__ import annotations
+
 from sqlalchemy import String, Integer, Boolean, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db import Base
@@ -12,7 +14,12 @@ class Channel(Base):
     epg_id: Mapped[str | None] = mapped_column(String(256), index=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
 
-    streams: Mapped[list[Stream]] = relationship("Stream", back_populates="channel", cascade="all, delete-orphan")
+    # Forward ref: annotate with "Stream" to avoid NameError at class creation
+    streams: Mapped[list["Stream"]] = relationship(
+        "Stream",
+        back_populates="channel",
+        cascade="all, delete-orphan",
+    )
 
 class Stream(Base):
     __tablename__ = "streams"
@@ -22,4 +29,4 @@ class Stream(Base):
     headers_json: Mapped[str | None] = mapped_column(Text)
     priority: Mapped[int] = mapped_column(Integer, default=100)
 
-    channel: Mapped[Channel] = relationship("Channel", back_populates="streams")
+    channel: Mapped["Channel"] = relationship("Channel", back_populates="streams")
