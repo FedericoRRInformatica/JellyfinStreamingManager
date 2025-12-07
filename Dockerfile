@@ -2,8 +2,14 @@
 # ---------- STAGE 1: build web (Vite) ----------
 FROM node:20-alpine AS webbuild
 WORKDIR /app
-COPY web/package*.json ./ 
-RUN npm ci
+
+# Copia solo i manifest per install
+aDd web/package*.json ./
+
+# Se esiste il lock, usa npm ci; altrimenti fallback a npm install
+RUN if [ -f package-lock.json ]; then       npm ci --no-audit --no-fund;     else       npm install --no-audit --no-fund;     fi
+
+# Ora copia il resto del codice e builda
 COPY web/ .
 RUN npm run build
 
