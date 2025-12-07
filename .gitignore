@@ -1,0 +1,19 @@
+# --- Visual Studio / IDE ---
+.vs/
+*.suo
+*.user
+*.userossc
+*.sln.docstates
+
+# --- Node / Vite build ---
+web/node_modules/
+web/dist/
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
