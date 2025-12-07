@@ -2,7 +2,7 @@
 import os, json
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from app.db import Base, engine
@@ -50,14 +50,14 @@ def write_settings(payload: Settings):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to write settings: {e}")
 
-# Demo output endpoints
+# Demo output endpoints with proper media types
 @app.get("/output/m3u/default.m3u")
 def m3u_default():
-    text = "#EXTM3U
+    text = """#EXTM3U
 #EXTINF:-1 tvg-id="demo" group-title="Demo",Demo Channel
 http://example.com/live/demo.ts
-"
-    return text
+"""
+    return Response(content=text, media_type="audio/x-mpegurl")
 
 @app.get("/output/xmltv/default.xml")
 def xmltv_default():
@@ -68,8 +68,9 @@ def xmltv_default():
     <title>Programma Demo</title>
     <desc>Esempio XMLTV</desc>
   </programme>
-</tv>"""
-    return xml
+</tv>
+"""
+    return Response(content=xml, media_type="application/xml")
 
 # Routers
 app.include_router(channels_router)
