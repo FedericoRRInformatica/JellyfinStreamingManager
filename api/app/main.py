@@ -1,11 +1,17 @@
 
-import os
-import json
+import os, json
 from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from app.db import Base, engine
+from app.routes.channels import router as channels_router
+from app.routes.epg import router as epg_router
+from app.routes.vod import router as vod_router
+
+# Create tables on startup (simple migration strategy for now)
+Base.metadata.create_all(bind=engine)
 
 # --- Config ---
 DATA_DIR = Path(os.getenv("JSM_DATA_DIR", "/data"))
@@ -14,18 +20,16 @@ STATIC_DIR = Path("/srv/static")
 
 app = FastAPI(title="JSManager API")
 
-# Ensure data dir exists on startup
+# Ensure data dir exists and default settings
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 if not SETTINGS_FILE.exists():
     SETTINGS_FILE.write_text(json.dumps({"brand": "JSManager", "port": 7373}, ensure_ascii=False, indent=2), encoding="utf-8")
 
-# --- Models ---
 class Settings(BaseModel):
     brand: str | None = None
     port: int | None = None
     theme: str | None = None
 
-# --- Settings Endpoints ---
 @app.get("/api/settings", response_model=Settings)
 def read_settings():
     try:
@@ -46,14 +50,14 @@ def write_settings(payload: Settings):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to write settings: {e}")
 
-# --- Demo Output endpoints ---
+# Demo output endpoints
 @app.get("/output/m3u/default.m3u")
 def m3u_default():
     text = "#EXTM3U
 #EXTINF:-1 tvg-id="demo" group-title="Demo",Demo Channel
 http://example.com/live/demo.ts
 "
-    return FileResponse(path=str((DATA_DIR / "m3u_default.m3u").resolve()), filename="default.m3u") if False else text
+    return text
 
 @app.get("/output/xmltv/default.xml")
 def xmltv_default():
@@ -67,11 +71,16 @@ def xmltv_default():
 </tv>"""
     return xml
 
-# --- Static UI ---
+# Routers
+app.include_router(channels_router)
+app.include_router(epg_router)
+app.include_router(vod_router)
+
+# Static UI
 if STATIC_DIR.exists():
     app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
 
-# Catch-all to return index.html for SPA routes if static dir present
+# SPA fallback
 @app.get("/{full_path:path}")
 def spa_fallback(full_path: str):
     index_path = STATIC_DIR / "index.html"

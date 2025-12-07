@@ -1,44 +1,30 @@
 
-# JellyfinStreamingManager (JSManager) — Locale, porta 7373, senza Nginx
+# JellyfinStreamingManager (JSManager) — Locale, porta 7373, DB SQLite in /data
 
-JSManager gira **solo in rete locale**, espone **una sola porta (7373)**, serve la UI statica direttamente da **FastAPI** e persiste le impostazioni in un **volume Docker**.
+JSManager gira **solo in rete locale**, espone **porta 7373**, serve la UI con **FastAPI** e persiste **settings + dati** in un **volume Docker**.
 
-## Endpoints
+## Persistenza
+- **Settings**: `/data/settings.json`
+- **DB**: SQLite in `/data/jsmanager.db`
+
+## Endpoints principali
 - UI: `http://<host>:7373/`
 - M3U: `http://<host>:7373/output/m3u/default.m3u`
 - XMLTV: `http://<host>:7373/output/xmltv/default.xml`
-- API Settings: `GET/PUT http://<host>:7373/api/settings`
+- Settings: `GET/PUT /api/settings`
+- Channels: `GET/POST/PUT/PATCH/DELETE /api/channels[/ {id}]`
+- EPG Sources: `GET/POST/PUT/PATCH/DELETE /api/epg/sources[/ {id}]`
+- VOD Collections: `GET/POST/DELETE /api/vod/collections[/ {id}]`
+- VOD Items: `GET/POST/GET(id)/PUT/PATCH/DELETE /api/vod/items[/ {id}]`
 
-## Persistenza (volume Docker)
-L'immagine dichiara `VOLUME /data`. Monta un volume/named volume per preservare le impostazioni:
-
+## Run (con volume)
 ```bash
 docker run -d   -p 7373:7373   -v jsmanager_data:/data   --name jsmanager   ghcr.io/federicorrinformatica/jsmanager:latest
 ```
 
-Oppure con compose:
-```yaml
-version: "3.9"
-services:
-  jsmanager:
-    image: ghcr.io/federicorrinformatica/jsmanager:latest
-    ports: ["7373:7373"]
-    volumes:
-      - jsmanager_data:/data
-volumes:
-  jsmanager_data:
-```
+## Build & Push (GHCR)
+Workflow: `.github/workflows/build-jsmanager.yml` (multi‑arch), tag con owner **lowercase**.
 
-## Build & Push (GitHub Actions → GHCR)
-Workflow: `.github/workflows/build-jsmanager.yml` (multi‑arch amd64+arm64), con owner **lowercase**.
-
-## Nota su `npm ci`
-Il build dello UI usa `npm ci` **se** esiste `web/package-lock.json`; altrimenti **fallback** a `npm install`. Per build deterministici, genera e committa il lockfile.
-
-## Run
-```bash
-docker run -d -p 7373:7373 -v jsmanager_data:/data ghcr.io/federicorrinformatica/jsmanager:latest
-```
-
-## Jellyfin
-In **Dashboard → Live TV** incolla gli endpoint M3U/XMLTV sopra.
+## Note
+- Se aggiungi `web/package-lock.json` userai `npm ci`; altrimenti il build fa fallback a `npm install`.
+- Le tabelle DB sono create automaticamente all'avvio (strategia semplice senza migrazioni per il MVP).
