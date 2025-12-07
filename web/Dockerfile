@@ -7,9 +7,9 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Serve statici
+# Serve statici + reverse proxy verso API
 FROM nginx:alpine
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 8081
+EXPOSE 7373
 CMD ["nginx", "-g", "daemon off;"]
