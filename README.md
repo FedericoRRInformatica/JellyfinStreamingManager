@@ -1,21 +1,21 @@
 
-# JellyfinStreamingManager (JSManager) — Immagine Unificata (Web + API)
+# JellyfinStreamingManager (JSManager) — Unified Image (lowercase tag fix)
 
-> **One container, one port (7373).**  
-> JSManager fornisce un endpoint **M3U** e una guida **XMLTV** pronti per **Jellyfin Live TV** e serve una UI minimale per il setup.  
-> L’immagine unificata integra **Web (Nginx)** + **API (FastAPI/Uvicorn)** dietro a un reverse‑proxy, esponendo **una sola porta: 7373**.
+Immagine **unica** (Web+API) che ascolta su **porta 7373**.
 
----
+## Endpoints
+- UI: `http://<host>:7373/`
+- M3U: `http://<host>:7373/output/m3u/default.m3u`
+- XMLTV: `http://<host>:7373/output/xmltv/default.xml`
 
-## ✨ Funzioni (MVP)
-- **Output M3U** di test: `/output/m3u/default.m3u`
-- **Output XMLTV** di test: `/output/xmltv/default.xml`
-- **UI** minima (React + Vite) servita da **Nginx**
-- Immagine **multi‑arch** (amd64 + arm64) pubblicata su **GHCR**
-- Deploy **single pull**: `docker run -p 7373:7373 ghcr.io/FedericoRRInformatica/jsmanager:latest`
+## Build & Push (GitHub Actions → GHCR)
+Workflow: `.github/workflows/build-jsmanager.yml` (multi‑arch amd64+arm64). Usa `OWNER_LC` per forzare il nome repository in **minuscolo**.
 
-> Le funzioni evolveranno rapidamente con: ingest M3U/XMLTV reali, profili **Direct** e **Proxy/FFmpeg**, VODs, health/logs, fallback.
+## Run
+```bash
+docker run -d -p 7373:7373 ghcr.io/federicorrinformatica/jsmanager:latest
+```
 
----
-
-## 🏗 Architettura (porta unica 7373)
+## Note
+- Nginx serve gli statici e fa reverse-proxy verso Uvicorn (8000) internamente.
+- I tag GHCR richiedono repos **lowercase**; il workflow calcola automaticamente l'owner in minuscolo.

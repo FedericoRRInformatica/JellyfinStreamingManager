@@ -1,19 +1,20 @@
-# --- Visual Studio / IDE ---
+
+# Visual Studio
 .vs/
 *.suo
 *.user
 *.userossc
 *.sln.docstates
 
-# --- Node / Vite build ---
+# Node/Vite
 web/node_modules/
 web/dist/
 
-# --- Python ---
+# Python
 __pycache__/
 *.pyc
 .venv/
 
-# --- OS junk ---
+# OS
 .DS_Store
 Thumbs.db
