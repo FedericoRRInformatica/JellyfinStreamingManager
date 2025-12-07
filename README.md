@@ -1,26 +1,44 @@
 
-# JellyfinStreamingManager (JSManager) — Unified Image (npm ci fallback)
+# JellyfinStreamingManager (JSManager) — Locale, porta 7373, senza Nginx
 
-Immagine **unica** (Web+API) su **porta 7373**.
+JSManager gira **solo in rete locale**, espone **una sola porta (7373)**, serve la UI statica direttamente da **FastAPI** e persiste le impostazioni in un **volume Docker**.
 
 ## Endpoints
 - UI: `http://<host>:7373/`
 - M3U: `http://<host>:7373/output/m3u/default.m3u`
 - XMLTV: `http://<host>:7373/output/xmltv/default.xml`
+- API Settings: `GET/PUT http://<host>:7373/api/settings`
+
+## Persistenza (volume Docker)
+L'immagine dichiara `VOLUME /data`. Monta un volume/named volume per preservare le impostazioni:
+
+```bash
+docker run -d   -p 7373:7373   -v jsmanager_data:/data   --name jsmanager   ghcr.io/federicorrinformatica/jsmanager:latest
+```
+
+Oppure con compose:
+```yaml
+version: "3.9"
+services:
+  jsmanager:
+    image: ghcr.io/federicorrinformatica/jsmanager:latest
+    ports: ["7373:7373"]
+    volumes:
+      - jsmanager_data:/data
+volumes:
+  jsmanager_data:
+```
 
 ## Build & Push (GitHub Actions → GHCR)
 Workflow: `.github/workflows/build-jsmanager.yml` (multi‑arch amd64+arm64), con owner **lowercase**.
 
-## NPM: perché il fallback
-- In CI, `npm ci` richiede un **package-lock.json** valido e in sync con `package.json`; se manca o è fuori sync, fallisce (è by‑design per build deterministici).
-- Il nostro Dockerfile usa: **se c’è il lock → `npm ci`**, altrimenti **fallback a `npm install`**.
-- Best‑practice: committa `web/package-lock.json` e torni a `npm ci` puro.
+## Nota su `npm ci`
+Il build dello UI usa `npm ci` **se** esiste `web/package-lock.json`; altrimenti **fallback** a `npm install`. Per build deterministici, genera e committa il lockfile.
 
 ## Run
 ```bash
-docker run -d -p 7373:7373 ghcr.io/federicorrinformatica/jsmanager:latest
+docker run -d -p 7373:7373 -v jsmanager_data:/data ghcr.io/federicorrinformatica/jsmanager:latest
 ```
 
-## Note
-- Nginx serve gli statici e fa reverse-proxy verso Uvicorn (8000) internamente.
-- `.npmrc` riduce rumore di audit/fund nei log.
+## Jellyfin
+In **Dashboard → Live TV** incolla gli endpoint M3U/XMLTV sopra.

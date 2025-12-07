@@ -1,5 +1,5 @@
 
-name: Build & Push JSManager (unified, GHCR, multi-arch)
+name: Build & Push JSManager (local-only, GHCR, multi-arch)
 on:
   push:
     branches: [ main ]

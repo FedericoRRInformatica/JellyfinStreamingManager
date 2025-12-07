@@ -3,47 +3,42 @@
 FROM node:20-alpine AS webbuild
 WORKDIR /app
 
-# Copia solo i manifest per install
-aDd web/package*.json ./
+# Copy manifests only
+COPY web/package*.json ./
 
-# Se esiste il lock, usa npm ci; altrimenti fallback a npm install
+# Use npm ci if lock exists, else fallback to npm install
 RUN if [ -f package-lock.json ]; then       npm ci --no-audit --no-fund;     else       npm install --no-audit --no-fund;     fi
 
-# Ora copia il resto del codice e builda
+# Copy sources and build
 COPY web/ .
 RUN npm run build
 
-# ---------- STAGE 2: prepare api (python deps) ----------
-FROM python:3.11-slim AS apiprep
-WORKDIR /app
-COPY api/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY api/app ./app
-
-# ---------- STAGE 3: final image (Nginx + Uvicorn + supervisord) ----------
+# ---------- STAGE 2: final image (FastAPI + Uvicorn) ----------
 FROM python:3.11-slim
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED=1     JSM_DATA_DIR=/data
 WORKDIR /srv
 
-# Install Nginx e supervisord
-RUN apt-get update && apt-get install -y --no-install-recommends nginx supervisor  && rm -rf /var/lib/apt/lists/*
+# Install deps
+COPY api/requirements.txt /srv/api/requirements.txt
+RUN pip install --no-cache-dir -r /srv/api/requirements.txt
 
-# Copia API dal stage apiprep
-COPY --from=apiprep /app /srv/api
+# Copy API
+COPY api/app /srv/api/app
 
-# Copia web statici dal stage webbuild
-COPY --from=webbuild /app/dist /usr/share/nginx/html
+# Copy web build to static dir
+RUN mkdir -p /srv/static
+COPY --from=webbuild /app/dist /srv/static
 
-# Nginx config (porta 7373, proxy verso Uvicorn:8000)
-COPY web/nginx.7373.conf /etc/nginx/nginx.conf
+# Ensure data dir exists
+RUN mkdir -p /data
 
-# Supervisord (avvia nginx + uvicorn)
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Espone la porta unica
+# Expose single port
 EXPOSE 7373
 
-# Healthcheck semplice (opzionale)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3   CMD wget -qO- http://127.0.0.1:7373/ || exit 1
+# Declare persistent volume for settings/data
+VOLUME ["/data"]
 
-CMD ["supervisord", "-n"]
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:7373/').read()" || exit 1
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7373"]
