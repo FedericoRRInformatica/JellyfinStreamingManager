@@ -2,14 +2,14 @@
 import React from 'react'
 
 export default function App() {
-  const apiBase = window.location.origin
+  const origin = window.location.origin
   return (
     <div style={{fontFamily:'system-ui', padding:20}}>
-      <h1>JellyfinStreamingManager (JSManager)</h1>
-      <p>Output per Jellyfin (stesso host e porta 7373):</p>
+      <h1>JellyfinStreamingManager (JSManager) — Porta unica 7373</h1>
+      <p>Output per Jellyfin (stessa porta):</p>
       <ul>
-        <li>M3U (default): <code>{apiBase}/output/m3u/default.m3u</code></li>
-        <li>XMLTV (default): <code>{apiBase}/output/xmltv/default.xml</code></li>
+        <li>M3U: <code>{origin}/output/m3u/default.m3u</code></li>
+        <li>XMLTV: <code>{origin}/output/xmltv/default.xml</code></li>
       </ul>
     </div>
   )
