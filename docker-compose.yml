@@ -1,0 +1,10 @@
+
+version: "3.9"
+services:
+  api:
+    image: ghcr.io/federicorrinformatica/jsmanager-api:latest
+    ports: ["7373:7373"]
+  web:
+    image: ghcr.io/federicorrinformatica/jsmanager-web:latest
+    ports: ["8081:8081"]
+    depends_on: [api]
