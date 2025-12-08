@@ -1,21 +1,63 @@
 
-:root{--brand:#6EA241;--text:#1f2937;--muted:#6b7280;--bg:#f8fafc;--card:#fff;--border:#e5e7eb;--accent:#0ea5e9}
-html,body{height:100%}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif;color:var(--text);background:var(--bg)}
-.container{max-width:960px;margin:24px auto;padding:0 16px}
-h1,h2,h3{margin:0 0 12px;line-height:1.2}
-h1{font-size:28px}
-h2{font-size:22px;color:var(--muted)}
-p{margin:8px 0}
-a{color:var(--accent);text-decoration:none}
-a:hover{text-decoration:underline}
-label{display:block;font-weight:600;margin:12px 0 6px}
-input[type="text"],input[type="number"],select{width:100%;max-width:420px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text)}
-button{appearance:none;border:1px solid var(--border);background:#fff;color:var(--text);padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
-button:hover{filter:brightness(0.98)}
-button:active{filter:brightness(0.96)}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
-pre,code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-pre{background:#f3f4f6;border:1px solid var(--border);border-radius:12px;padding:14px;overflow:auto}
-.header{padding:24px 16px 0}
-.header h1{color:var(--brand)}
+/* =====================
+   JSManager UI (Sprint A)
+   Layout + Dark Theme
+   ===================== */
+:root {
+  --bg: #0b0f1a;        /* page bg */
+  --panel: #121826;     /* cards/sidebar */
+  --text: #e5e7eb;      /* primary text */
+  --muted: #94a3b8;     /* secondary text */
+  --border: #1f2937;    /* borders */
+  --accent: #6EA241;    /* brand touch (limited) */
+}
+
+/* Base */
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; }
+img { display: block; }
+a { color: #60a5fa; text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Shell layout */
+.app-shell { display: flex; min-height: 100vh; }
+.sidebar { width: 240px; background: #0b1220; color: var(--text); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+.sidebar .brand { font-weight: 800; padding: 16px; color: var(--accent); }
+.sidebar nav { display: flex; flex-direction: column; }
+.sidebar .navitem { display: block; padding: 10px 16px; color: var(--text); border-bottom: 1px solid rgba(255,255,255,0.04); }
+.sidebar .navitem.active { background: #111827; }
+
+.main { flex: 1; display: flex; flex-direction: column; }
+.topbar { height: 56px; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; background: #0f172a; }
+.content { padding: 16px; }
+
+/* Cards */
+.card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+.badge { background:#1f2937; color:var(--text); padding:4px 8px; border-radius:999px; font-size:12px; }
+.muted { color: var(--muted); font-size: 12px; }
+
+/* Controls */
+label { display:block; font-weight:600; margin:12px 0 6px; }
+input[type="text"], select { background:#0f172a; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px 12px; }
+button { appearance:none; background:#0f172a; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-weight:600; cursor:pointer; }
+button:hover { filter: brightness(1.05); }
+button:active { filter: brightness(0.98); }
+
+/* Table */
+.table { display:grid; grid-template-columns: 80px 1fr 220px 1fr; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+.table .thead, .table .trow { display: contents; }
+.table .thead > div { font-weight:700; background:#111827; padding:10px; border-bottom:1px solid var(--border); }
+.table .trow > div { padding:10px; border-bottom:1px solid #1f2937; }
+.ellipsis { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+/* Utilities */
+.mt-2 { margin-top: 8px; }
+.mt-4 { margin-top: 16px; }
+.mt-6 { margin-top: 24px; }
+.ml-auto { margin-left: auto; }
+.flex { display:flex; }
+.items-center { align-items:center; }
+.gap-2 { gap:8px; }
+
+/* Header brand color only for headings */
+.header h1 { color: var(--accent); }
