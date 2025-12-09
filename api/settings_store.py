@@ -1,7 +1,9 @@
 import json, os, tempfile, shutil
+from typing import Optional
 
 DATA_DIR = os.environ.get('JSM_DATA_DIR', '/data')
 SETTINGS_PATH = os.path.join(DATA_DIR, 'settings.json')
+VOD_ROOT = os.environ.get('JSM_VOD_ROOT', '/VOD')
 
 DEFAULT = {
     "streamSettings": {
@@ -9,7 +11,10 @@ DEFAULT = {
         "defaultStreamProfileId": None
     },
     "profiles": [],
-    "userAgents": []
+    "userAgents": [],
+    "vodSettings": {
+        "basePath": "/VOD"
+    }
 }
 
 def load_settings():
@@ -40,7 +45,17 @@ def save_settings(settings: dict):
         except Exception: pass
 
 
-def is_valid_ids(settings: dict, ua_id: str|None, profile_id: str|None) -> bool:
-    ua_ok = (ua_id is None) or any(u.get('isActive') and u.get('id') == ua_id for u in settings.get('userAgents', []))
-    pr_ok = (profile_id is None) or any(p.get('isActive') and p.get('id') == profile_id for p in settings.get('profiles', []))
-    return ua_ok and pr_ok
+def _normalize(path: str) -> str:
+    return os.path.realpath(path)
+
+
+def is_path_allowed(path: str) -> bool:
+    if not os.path.isabs(path):
+        return False
+    rp = _normalize(path)
+    root = _normalize(VOD_ROOT)
+    return rp.startswith(root + os.sep) or rp == root
+
+
+def ensure_dir(path: str):
+    os.makedirs(path, exist_ok=True)
