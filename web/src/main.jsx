@@ -1,25 +1,24 @@
 
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom'
 import './style.css'
 import App from './App'
-import Dashboard from './pages/Dashboard'
 import Channels from './pages/Channels'
-import Streams from './pages/Streams'
-import EPG from './pages/EPG'
-import Profiles from './pages/Profiles'
-import Output from './pages/Output'
+import Vod from './pages/Vod'
+import PlaylistManager from './pages/PlaylistManager'
+import Users from './pages/Users'
+import LogoManager from './pages/LogoManager'
 import Settings from './pages/Settings'
 
 const router = createBrowserRouter([
   { path: '/', element: <App />, children: [
-    { index: true, element: <Dashboard/> },
+    { index: true, element: <Navigate to="/channels" replace /> },
     { path: 'channels', element: <Channels/> },
-    { path: 'streams', element: <Streams/> },
-    { path: 'epg', element: <EPG/> },
-    { path: 'profiles', element: <Profiles/> },
-    { path: 'output', element: <Output/> },
+    { path: 'vod', element: <Vod/> },
+    { path: 'playlist', element: <PlaylistManager/> },
+    { path: 'users', element: <Users/> },
+    { path: 'logos', element: <LogoManager/> },
     { path: 'settings', element: <Settings/> },
   ]}
 ])
