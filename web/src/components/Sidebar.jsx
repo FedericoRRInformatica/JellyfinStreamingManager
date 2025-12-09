@@ -3,13 +3,12 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 
 const nav = [
-  { to: '/', label: 'Dashboard' },
-  { to: '/channels', label: 'Canali' },
-  { to: '/streams', label: 'Streams' },
-  { to: '/epg', label: 'EPG' },
-  { to: '/profiles', label: 'Profili' },
-  { to: '/output', label: 'Output' },
-  { to: '/settings', label: 'Impostazioni' },
+  { to: '/channels', label: 'Channels' },
+  { to: '/vod', label: 'VOD' },
+  { to: '/playlist', label: 'Playlist Manager' },
+  { to: '/users', label: 'Users' },
+  { to: '/logos', label: 'Logo Manager' },
+  { to: '/settings', label: 'Settings' },
 ]
 
 export default function Sidebar(){
